@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmação de Presença</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">Confirmação de Presença</h1>
+        <div class="space-y-4">
+            <p class="text-gray-700"><span class="font-semibold">Telefone:</span> {{ .Phone }}</p>
+            <p class="text-gray-700"><span class="font-semibold">Adultos:</span> {{ .Adults }}</p>
+            <p class="text-gray-700"><span class="font-semibold">Crianças:</span> {{ .Children }}</p>
+        </div>
+
+        <!-- Mapa da localização -->
+        <div class="mt-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Localização da Festa</h2>
+            <iframe
+                class="w-full h-48 rounded-lg"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4495.396299518651!2d-47.6159232237843!3d-23.69735436660421!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94c59b50ca291b2d%3A0x1143ddce6296aaf!2sCh%C3%A1cara%20Beija%20Flor!5e1!3m2!1spt-BR!2sbr!4v1740080012273!5m2!1spt-BR!2sbr"                    
+                allowfullscreen
+                loading="lazy">
+            </iframe>
+        </div>
+
+        <!-- Botão para enviar localização via WhatsApp -->
+        <div class="mt-6">
+            <a
+                href="https://api.whatsapp.com/send?phone={{ .Phone }}&text=Olá! Aqui está a localização da festa do DODO (dia 09/08/2025): https://maps.app.goo.gl/CwZUJxumebwYj1rN9"
+                target="_blank"
+                class="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300 block text-center">
+                Enviar Localização via WhatsApp
+            </a>
+        </div>
+    </div>
+</body>
+</html>

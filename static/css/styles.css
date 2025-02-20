@@ -1,0 +1,16 @@
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+}
+
+input {
+    margin-bottom: 1rem;
+}
+
+button {
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    opacity: 0.9;
+}

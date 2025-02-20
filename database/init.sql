@@ -1,0 +1,10 @@
+CREATE DATABASE IF NOT EXISTS festa_db;
+
+USE festa_db;
+
+CREATE TABLE guests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    phone VARCHAR(15) NOT NULL UNIQUE,
+    adults INT DEFAULT 0,
+    children INT DEFAULT 0
+);
