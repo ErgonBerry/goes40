@@ -77,12 +77,18 @@ func main() {
 		log.Fatal("A variável de ambiente ADMIN_PASSWORD não está definida")
 	}
 
+	// Carregar a URI do MongoDB
+	mongoURI := os.Getenv("MONGO_URI")
+	if mongoURI == "" {
+		log.Fatal("A variável de ambiente MONGO_URI não está definida")
+	}
+
 	// Conectar ao MongoDB
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	var err error
-	client, err = mongo.Connect(ctx, options.Client().ApplyURI("mongodb://mongo:27017"))
+	client, err = mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		log.Fatal(err)
 	}

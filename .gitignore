@@ -23,9 +23,9 @@
 *.log
 *.tmp
 
-# Ignorar arquivos do Docker
-Dockerfile
-docker-compose.yml
+# # Ignorar arquivos do Docker
+# Dockerfile
+# docker-compose.yml
 
 # Ignorar arquivos do MongoDB
 /data/
