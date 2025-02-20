@@ -1,0 +1,37 @@
+# Ignorar arquivos binários e executáveis
+/bin/
+/festa-app
+
+# Ignorar arquivos de dependências do Go
+/go.sum
+/go.mod
+
+# Ignorar arquivos de configuração local
+.env
+*.env
+
+# Ignorar diretórios de dependências do Go
+/vendor/
+
+# Ignorar arquivos de IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Ignorar logs e arquivos temporários
+*.log
+*.tmp
+
+# Ignorar arquivos do Docker
+Dockerfile
+docker-compose.yml
+
+# Ignorar arquivos do MongoDB
+/data/
+/mongo_data/
+
+# Ignorar arquivos gerados pelo Tailwind CSS (se houver)
+/node_modules/
+/dist/
+/build/
