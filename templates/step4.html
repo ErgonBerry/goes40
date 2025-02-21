@@ -5,6 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Confirmação de Presença - Passo 4</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Efeito de fade para as imagens */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .fade-out {
+            animation: fadeOut 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
@@ -15,9 +35,9 @@
             </div>
         {{ end }}
 
-        <!-- Imagem -->
-        <div class="mb-6">
-            <img src="/static/images/chacara.jpg" alt="Festa" class="w-full h-auto rounded-lg">
+        <!-- Imagem inicial -->
+        <div class="mb-6 relative">
+            <img id="mainImage" src="/static/images/festa.jpg" alt="Festa" class="w-full h-auto rounded-lg transition-opacity duration-500">
         </div>
 
         <h1 class="text-2xl font-bold text-gray-800 mb-6">Tem interesse em pernoitar na chácara?</h1>
@@ -43,5 +63,37 @@
             </button>
         </form>
     </div>
+
+    <!-- Script para trocar as imagens com efeito de fade -->
+    <script>
+        const mainImage = document.getElementById('mainImage');
+        const simOption = document.querySelector('input[value="sim"]');
+        const naoOption = document.querySelector('input[value="nao"]');
+
+        // Função para trocar a imagem com efeito de fade
+        function changeImage(newSrc) {
+            mainImage.classList.add('fade-out'); // Inicia o fade-out
+            setTimeout(() => {
+                mainImage.src = newSrc; // Troca a imagem
+                mainImage.classList.remove('fade-out'); // Remove o fade-out
+                mainImage.classList.add('fade-in'); // Inicia o fade-in
+            }, 500); // Tempo correspondente à duração do fade-out
+
+            // Remove o fade-in após a animação
+            setTimeout(() => {
+                mainImage.classList.remove('fade-in');
+            }, 1000); // Tempo correspondente à duração do fade-in
+        }
+
+        // Evento para "Sim"
+        simOption.addEventListener('change', function() {
+            changeImage('/static/images/chacara.jpg');
+        });
+
+        // Evento para "Não"
+        naoOption.addEventListener('change', function() {
+            changeImage('/static/images/chico.webp');
+        });
+    </script>
 </body>
 </html>
