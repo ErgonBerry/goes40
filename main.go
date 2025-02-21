@@ -179,7 +179,7 @@ func main() {
 			return c.Status(400).SendString("Telefone não encontrado na lista de convidados")
 		}
 	
-		// // Se já confirmou, verificar o IP
+		// Se já confirmou, verificar o IP
 		if guest.Confirmed {
 			if guest.IP != ip {
 				return c.Status(403).SendString("Confirmação já realizada por outro dispositivo.")
