@@ -9,6 +9,13 @@
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <!-- Mensagem de alteração -->
+        {{ if .IsUpdate }}
+            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+                Alteração em andamento...
+            </div>
+        {{ end }}
+
         <!-- Imagem -->
         <div class="mb-6">
             <img src="/static/images/festa.jpg" alt="Festa" class="w-full h-auto rounded-lg">

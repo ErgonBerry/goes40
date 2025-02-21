@@ -18,10 +18,12 @@ var client *mongo.Client
 var collection *mongo.Collection
 
 type Guest struct {
-    Phone    string `bson:"phone"`
-    Name     string `bson:"name"`
-    Adults   int    `bson:"adults"`
-    Children int    `bson:"children"`
+    Phone     string `bson:"phone"`
+    Name      string `bson:"name"`
+    Adults    int    `bson:"adults"`
+    Children  int    `bson:"children"`
+    Confirmed bool   `bson:"confirmed"`
+    IP        string `bson:"ip"`
 }
 
 func getTotals() (totalAdults int, totalChildren int, err error) {
@@ -114,12 +116,27 @@ func main() {
 
 	app.Post("/step2", func(c *fiber.Ctx) error {
 		phone := c.FormValue("phone")
+		ip := c.IP() // Captura o IP do usuário
 
 		// Validar se o telefone está no banco de dados
 		var guest Guest
 		err := collection.FindOne(context.TODO(), bson.M{"phone": phone}).Decode(&guest)
 		if err != nil {
 			return c.Status(400).SendString("Telefone não encontrado na lista de convidados")
+		}
+
+		// Se já confirmou, verificar o IP
+		if guest.Confirmed {
+			if guest.IP != ip {
+				return c.Status(403).SendString("Confirmação já realizada por outro dispositivo.")
+			}
+			// Se o IP for o mesmo, permitir a alteração
+			return c.Render("step2", fiber.Map{
+				"Phone":        phone,
+				"Adults":       guest.Adults,
+				"Children":     guest.Children,
+				"IsUpdate":     true, // Indica que é uma atualização
+			})
 		}
 
 		return c.Render("step2", fiber.Map{
@@ -130,10 +147,22 @@ func main() {
 	app.Post("/step3", func(c *fiber.Ctx) error {
 		phone := c.FormValue("phone")
 		adults := c.FormValue("adults")
-
+		ip := c.IP() // Captura o IP do usuário
+	
+		// Verifica se o convidado já confirmou presença
+		var guest Guest
+		err := collection.FindOne(context.TODO(), bson.M{"phone": phone}).Decode(&guest)
+		if err != nil {
+			return c.Status(400).SendString("Telefone não encontrado na lista de convidados")
+		}
+	
+		// Verifica se é uma alteração
+		isUpdate := guest.Confirmed && guest.IP == ip
+	
 		return c.Render("step3", fiber.Map{
-			"Phone":  phone,
-			"Adults": adults,
+			"Phone":    phone,
+			"Adults":   adults,
+			"IsUpdate": isUpdate, // Indica se é uma alteração
 		})
 	})
 
@@ -141,6 +170,28 @@ func main() {
 		phone := c.FormValue("phone")
 		adults := c.FormValue("adults")
 		children := c.FormValue("children")
+		ip := c.IP() // Captura o IP do usuário
+	
+		// Verificar se o convidado já confirmou presença
+		var guest Guest
+		err := collection.FindOne(context.TODO(), bson.M{"phone": phone}).Decode(&guest)
+		if err != nil {
+			return c.Status(400).SendString("Telefone não encontrado na lista de convidados")
+		}
+	
+		// // Se já confirmou, verificar o IP
+		if guest.Confirmed {
+			if guest.IP != ip {
+				return c.Status(403).SendString("Confirmação já realizada por outro dispositivo.")
+			}
+			// Se o IP for o mesmo, permitir a alteração
+			return c.Render("confirm", fiber.Map{
+				"Phone":        phone,
+				"Adults":       guest.Adults,
+				"Children":     guest.Children,
+				"IsUpdate":     true, // Indica que é uma atualização
+			})
+		}
 	
 		// Converter adultos e crianças para inteiros
 		adultsInt, err := strconv.Atoi(adults)
@@ -157,7 +208,12 @@ func main() {
 		_, err = collection.UpdateOne(
 			context.TODO(),
 			bson.M{"phone": phone},
-			bson.M{"$set": bson.M{"adults": adultsInt, "children": childrenInt}},
+			bson.M{"$set": bson.M{
+				"adults":   adultsInt,
+				"children": childrenInt,
+				"confirmed": true,
+				"ip":       ip,
+			}},
 		)
 		if err != nil {
 			return c.Status(500).SendString("Erro ao confirmar presença")
@@ -165,9 +221,10 @@ func main() {
 	
 		// Renderizar a página de confirmação com os totais
 		return c.Render("confirm", fiber.Map{
-			"Phone":        phone,
-			"Adults":       adultsInt,
-			"Children":     childrenInt,
+			"Phone":    phone,
+			"Adults":   adultsInt,
+			"Children": childrenInt,
+			"IsUpdate": false, // Indica que é uma nova confirmação
 		})
 	})
 
