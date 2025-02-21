@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md text-center">
+        <!-- Mensagem de erro -->
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">Oops! Algo deu errado.</h1>
+        <p class="text-gray-700 mb-6">{{ .Message }}</p>
+
+        <!-- Contador de redirecionamento -->
+        <p class="text-sm text-gray-500">
+            Você será redirecionado para a página inicial em <span id="countdown">5</span> segundos...
+        </p>
+    </div>
+
+    <!-- Script para redirecionamento -->
+    <script>
+        let seconds = 5;
+        const countdownElement = document.getElementById("countdown");
+
+        const interval = setInterval(() => {
+            seconds--;
+            countdownElement.textContent = seconds;
+
+            if (seconds <= 0) {
+                clearInterval(interval);
+                window.location.href = "{{ .RedirectURL }}";
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

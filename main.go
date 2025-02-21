@@ -122,13 +122,19 @@ func main() {
 		var guest Guest
 		err := collection.FindOne(context.TODO(), bson.M{"phone": phone}).Decode(&guest)
 		if err != nil {
-			return c.Status(400).SendString("Telefone não encontrado na lista de convidados")
+			return c.Render("error", fiber.Map{
+                "Message":     "Telefone não encontrado na lista de convidados",
+                "RedirectURL": "/",
+            })
 		}
 
 		// Se já confirmou, verificar o IP
 		if guest.Confirmed {
 			if guest.IP != ip {
-				return c.Status(403).SendString("Confirmação já realizada por outro dispositivo.")
+				return c.Render("error", fiber.Map{
+					"Message":     "Confirmação já realizada por outro dispositivo.",
+					"RedirectURL": "/",
+				})
 			}
 			// Se o IP for o mesmo, permitir a alteração
 			return c.Render("step2", fiber.Map{
@@ -153,7 +159,10 @@ func main() {
 		var guest Guest
 		err := collection.FindOne(context.TODO(), bson.M{"phone": phone}).Decode(&guest)
 		if err != nil {
-			return c.Status(400).SendString("Telefone não encontrado na lista de convidados")
+			return c.Render("error", fiber.Map{
+                "Message":     "Telefone não encontrado na lista de convidados",
+                "RedirectURL": "/",
+            })
 		}
 	
 		// Verifica se é uma alteração
@@ -176,13 +185,19 @@ func main() {
 		var guest Guest
 		err := collection.FindOne(context.TODO(), bson.M{"phone": phone}).Decode(&guest)
 		if err != nil {
-			return c.Status(400).SendString("Telefone não encontrado na lista de convidados")
+			return c.Render("error", fiber.Map{
+                "Message":     "Telefone não encontrado na lista de convidados",
+                "RedirectURL": "/",
+            })
 		}
 	
 		// Se já confirmou, verificar o IP
 		if guest.Confirmed {
 			if guest.IP != ip {
-				return c.Status(403).SendString("Confirmação já realizada por outro dispositivo.")
+				return c.Render("error", fiber.Map{
+					"Message":     "Confirmação já realizada por outro dispositivo.",
+					"RedirectURL": "/",
+				})
 			}
 			// Se o IP for o mesmo, permitir a alteração
 			return c.Render("confirm", fiber.Map{
