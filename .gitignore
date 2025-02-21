@@ -8,7 +8,6 @@
 
 # Ignorar arquivos de configuração local
 .env
-*.env
 
 # Ignorar diretórios de dependências do Go
 /vendor/
