@@ -18,12 +18,13 @@ var client *mongo.Client
 var collection *mongo.Collection
 
 type Guest struct {
-    Phone     string `bson:"phone"`
-    Name      string `bson:"name"`
-    Adults    int    `bson:"adults"`
-    Children  int    `bson:"children"`
-    Confirmed bool   `bson:"confirmed"`
-    IP        string `bson:"ip"`
+    Phone         string `bson:"phone"`
+    Name          string `bson:"name"`
+    Adults        int    `bson:"adults"`
+    Children      int    `bson:"children"`
+    Confirmed     bool   `bson:"confirmed"`
+    IP            string `bson:"ip"`
+    OvernightStay string `bson:"overnightStay"` // Novo campo
 }
 
 func getTotals() (totalAdults int, totalChildren int, err error) {
@@ -166,18 +167,36 @@ func main() {
 		})
 	})
 
-	app.Post("/confirm", func(c *fiber.Ctx) error {
+	app.Post("/step4", func(c *fiber.Ctx) error {
 		phone := c.FormValue("phone")
 		adults := c.FormValue("adults")
 		children := c.FormValue("children")
 		ip := c.IP() // Captura o IP do usuário
 	
-		// Verificar se o convidado já confirmou presença
+		// Verifica se o convidado já confirmou presença
 		var guest Guest
 		err := collection.FindOne(context.TODO(), bson.M{"phone": phone}).Decode(&guest)
 		if err != nil {
 			return c.Status(400).SendString("Telefone não encontrado na lista de convidados")
 		}
+	
+		// Verifica se é uma alteração
+		isUpdate := guest.Confirmed && guest.IP == ip
+	
+		return c.Render("step4", fiber.Map{
+			"Phone":    phone,
+			"Adults":   adults,
+			"Children": children,
+			"IsUpdate": isUpdate, // Indica se é uma alteração
+		})
+	})
+
+	app.Post("/confirm", func(c *fiber.Ctx) error {
+		phone := c.FormValue("phone")
+		adults := c.FormValue("adults")
+		children := c.FormValue("children")
+		overnightStay := c.FormValue("overnightStay") // Novo campo
+		ip := c.IP()
 	
 		// Converter adultos e crianças para inteiros
 		adultsInt, err := strconv.Atoi(adults)
@@ -190,20 +209,28 @@ func main() {
 			return c.Status(400).SendString("Número de crianças inválido")
 		}
 	
+		// Verificar se o convidado já confirmou
+		var guest Guest
+		err = collection.FindOne(context.TODO(), bson.M{"phone": phone}).Decode(&guest)
+		if err != nil {
+			return c.Status(400).SendString("Telefone não encontrado na lista de convidados")
+		}
+	
 		// Se já confirmou, verificar o IP
 		if guest.Confirmed {
 			if guest.IP != ip {
 				return c.Status(403).SendString("Confirmação já realizada por outro dispositivo.")
 			}
-			// Se o IP for o mesmo, permitir a alteração e atualizar os dados no banco
+			// Atualizar os dados no banco
 			_, err = collection.UpdateOne(
 				context.TODO(),
 				bson.M{"phone": phone},
 				bson.M{"$set": bson.M{
-					"adults":   adultsInt,
-					"children": childrenInt,
-					"confirmed": true,
-					"ip":       ip,
+					"adults":        adultsInt,
+					"children":      childrenInt,
+					"confirmed":     true,
+					"ip":           ip,
+					"overnightStay": overnightStay, // Novo campo
 				}},
 			)
 			if err != nil {
@@ -211,10 +238,11 @@ func main() {
 			}
 	
 			return c.Render("confirm", fiber.Map{
-				"Phone":    phone,
-				"Adults":   adultsInt,
-				"Children": childrenInt,
-				"IsUpdate": true, // Indica que é uma atualização
+				"Phone":         phone,
+				"Adults":        adultsInt,
+				"Children":      childrenInt,
+				"OvernightStay": overnightStay, // Novo campo
+				"IsUpdate":      true,
 			})
 		}
 	
@@ -223,10 +251,11 @@ func main() {
 			context.TODO(),
 			bson.M{"phone": phone},
 			bson.M{"$set": bson.M{
-				"adults":   adultsInt,
-				"children": childrenInt,
-				"confirmed": true,
-				"ip":       ip,
+				"adults":        adultsInt,
+				"children":      childrenInt,
+				"confirmed":     true,
+				"ip":           ip,
+				"overnightStay": overnightStay, // Novo campo
 			}},
 		)
 		if err != nil {
@@ -234,10 +263,11 @@ func main() {
 		}
 	
 		return c.Render("confirm", fiber.Map{
-			"Phone":    phone,
-			"Adults":   adultsInt,
-			"Children": childrenInt,
-			"IsUpdate": false, // Indica que é uma nova confirmação
+			"Phone":         phone,
+			"Adults":        adultsInt,
+			"Children":      childrenInt,
+			"OvernightStay": overnightStay, // Novo campo
+			"IsUpdate":      false,
 		})
 	})
 

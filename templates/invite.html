@@ -25,6 +25,42 @@
                 Confirme aqui
             </a>
         </div>
+
+        <!-- Contagem regressiva (rodapé discreto) -->
+        <div class="mt-6 border-t border-gray-200 pt-4">
+            <p class="text-sm text-gray-600">Faltam:</p>
+            <div id="countdown" class="text-lg font-semibold text-gray-800">
+                <span id="days"></span>d :
+                <span id="hours"></span>h :
+                <span id="minutes"></span>m :
+                <span id="seconds"></span>s
+            </div>
+        </div>
     </div>
+
+    <script>
+        const eventDate = new Date("2025-08-09T10:00:00"); // Data do evento
+        const countdownElement = document.getElementById("countdown");
+
+        const interval = setInterval(() => {
+            const now = new Date();
+            const diff = eventDate - now;
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById("days").textContent = days;
+            document.getElementById("hours").textContent = hours;
+            document.getElementById("minutes").textContent = minutes;
+            document.getElementById("seconds").textContent = seconds;
+
+            if (diff <= 0) {
+                clearInterval(interval);
+                countdownElement.textContent = "O evento começou!";
+            }
+        }, 1000);
+    </script>
 </body>
 </html>

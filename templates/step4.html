@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmação de Presença - Passo 4</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <!-- Mensagem de alteração -->
+        {{ if .IsUpdate }}
+            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+                Alteração em andamento...
+            </div>
+        {{ end }}
+
+        <!-- Imagem -->
+        <div class="mb-6">
+            <img src="/static/images/chacara.jpg" alt="Festa" class="w-full h-auto rounded-lg">
+        </div>
+
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">Tem interesse em pernoitar na chácara?</h1>
+        <form action="/confirm" method="POST" class="space-y-4">
+            <input type="hidden" name="phone" value="{{ .Phone }}">
+            <input type="hidden" name="adults" value="{{ .Adults }}">
+            <input type="hidden" name="children" value="{{ .Children }}">
+            
+            <!-- Opções de pernoite -->
+            <div class="space-y-2">
+                <label class="flex items-center">
+                    <input type="radio" name="overnightStay" value="sim" class="form-radio h-4 w-4 text-blue-600" required>
+                    <span class="ml-2 text-gray-700">Sim</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="radio" name="overnightStay" value="nao" class="form-radio h-4 w-4 text-blue-600" required>
+                    <span class="ml-2 text-gray-700">Não</span>
+                </label>
+            </div>
+
+            <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
+                Confirmar
+            </button>
+        </form>
+    </div>
+</body>
+</html>
