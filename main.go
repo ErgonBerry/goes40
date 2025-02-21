@@ -24,7 +24,8 @@ type Guest struct {
     Children      int    `bson:"children"`
     Confirmed     bool   `bson:"confirmed"`
     IP            string `bson:"ip"`
-    OvernightStay string `bson:"overnightStay"` // Novo campo
+    OvernightStay string `bson:"overnightStay"`
+    EasterEgg     bool   `bson:"easterEgg"` // Novo campo
 }
 
 func getTotals() (totalAdults int, totalChildren int, err error) {
@@ -269,6 +270,26 @@ func main() {
 			"OvernightStay": overnightStay, // Novo campo
 			"IsUpdate":      false,
 		})
+	})
+
+	app.Post("/easter-egg", func(c *fiber.Ctx) error {
+		// Obter o telefone do convidado
+		phone := c.FormValue("phone")
+		if phone == "" {
+			return c.Status(400).SendString("Telefone não fornecido")
+		}
+	
+		// Atualizar o campo easterEgg no MongoDB
+		_, err := collection.UpdateOne(
+			context.TODO(),
+			bson.M{"phone": phone}, // Filtra pelo telefone
+			bson.M{"$set": bson.M{"easterEgg": true}}, // Define easterEgg como true
+		)
+		if err != nil {
+			return c.Status(500).SendString("Erro ao atualizar o Easter Egg no banco de dados")
+		}
+	
+		return c.SendStatus(200) // Resposta de sucesso
 	})
 
 	// Rota para a página de login do admin

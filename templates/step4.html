@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Confirmação de Presença - Passo 4</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         /* Efeito de fade para as imagens */
         .fade-in {
@@ -24,6 +25,21 @@
             from { opacity: 1; }
             to { opacity: 0; }
         }
+
+        /* Estilo para a mensagem do Easter Egg */
+        .easter-egg-message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
@@ -35,9 +51,9 @@
             </div>
         {{ end }}
 
-        <!-- Imagem inicial -->
+        <!-- Imagem inicial (Easter Egg aqui) -->
         <div class="mb-6 relative">
-            <img id="mainImage" src="/static/images/festa.jpg" alt="Festa" class="w-full h-auto rounded-lg transition-opacity duration-500">
+            <img id="mainImage" src="/static/images/festa.jpg" alt="Festa" class="w-full h-auto rounded-lg transition-opacity duration-500 cursor-pointer">
         </div>
 
         <h1 class="text-2xl font-bold text-gray-800 mb-6">Tem interesse em pernoitar na chácara?</h1>
@@ -64,13 +80,19 @@
         </form>
     </div>
 
-    <!-- Script para trocar as imagens com efeito de fade -->
+    <!-- Mensagem do Easter Egg -->
+    <div id="easterEggMessage" class="easter-egg-message">
+        <p class="text-lg font-bold text-gray-800">🎉 Você encontrou o segredo!</p>
+        <p class="text-gray-600">Agora você ganhou um brinde especial na festa!</p>
+    </div>
+
+    <!-- Scripts -->
     <script>
+        // Troca de imagens com efeito de fade
         const mainImage = document.getElementById('mainImage');
         const simOption = document.querySelector('input[value="sim"]');
         const naoOption = document.querySelector('input[value="nao"]');
 
-        // Função para trocar a imagem com efeito de fade
         function changeImage(newSrc) {
             mainImage.classList.add('fade-out'); // Inicia o fade-out
             setTimeout(() => {
@@ -93,6 +115,85 @@
         // Evento para "Não"
         naoOption.addEventListener('change', function() {
             changeImage('/static/images/chico.webp');
+        });
+
+        // Easter Egg com confetes e mensagem
+        const easterEggMessage = document.getElementById('easterEggMessage');
+        let clickCount = 0;
+
+        mainImage.addEventListener('click', function() {
+            clickCount++;
+
+            // Ativa o Easter Egg após 3 cliques
+            if (clickCount === 3) {
+                // Animação de confetes
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+
+                // Mostra a mensagem do Easter Egg
+                easterEggMessage.style.display = 'block';
+                setTimeout(() => {
+                    easterEggMessage.style.display = 'none';
+                }, 3000); // Oculta a mensagem após 3 segundos
+            }
+        });
+    </script>
+    <script>
+        let easterEggActivated = false; // Variável para rastrear o Easter Egg
+    
+        // Função para ativar o Easter Egg
+        function activateEasterEgg() {
+            easterEggActivated = true; // Marca o Easter Egg como ativado
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+            document.getElementById('easterEggMessage').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('easterEggMessage').style.display = 'none';
+            }, 3000);
+        }
+    
+        // Easter Egg: 3 cliques na imagem
+        let clickCount = 0;
+        document.getElementById('mainImage').addEventListener('click', function() {
+            clickCount++;
+            if (clickCount === 3) {
+                activateEasterEgg();
+            }
+        });
+    
+        // Função para enviar o Easter Egg ao backend
+        function registerEasterEgg(phone) {
+            if (!easterEggActivated) return; // Só envia se o Easter Egg foi ativado
+    
+            fetch('/easter-egg', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `phone=${encodeURIComponent(phone)}`,
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Erro ao registrar o Easter Egg');
+                } else {
+                    console.log('Easter Egg registrado com sucesso!');
+                }
+            })
+            .catch(error => {
+                console.error('Erro na requisição:', error);
+            });
+        }
+    
+        // Enviar o Easter Egg ao backend ao clicar em "Confirmar"
+        document.querySelector('form').addEventListener('submit', function(event) {
+            const phone = "{{ .Phone }}"; // Obtém o telefone do template
+            registerEasterEgg(phone); // Registra o Easter Egg (se ativado)
         });
     </script>
 </body>
