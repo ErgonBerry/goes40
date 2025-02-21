@@ -105,6 +105,10 @@ func main() {
 
 	// Rotas
 	app.Get("/", func(c *fiber.Ctx) error {
+		return c.Render("invite", nil)
+	})
+
+	app.Get("/step1", func(c *fiber.Ctx) error {
 		return c.Render("step1", nil)
 	})
 
@@ -239,6 +243,11 @@ func main() {
 		}
 
 		return c.Redirect("/admin/dashboard")
+	})
+
+	// Rota para a página de agradecimento
+	app.Get("/thanks", func(c *fiber.Ctx) error {
+		return c.Render("thanks", nil)
 	})
 
 	// Servir arquivos estáticos
