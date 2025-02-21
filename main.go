@@ -179,20 +179,6 @@ func main() {
 			return c.Status(400).SendString("Telefone não encontrado na lista de convidados")
 		}
 	
-		// Se já confirmou, verificar o IP
-		if guest.Confirmed {
-			if guest.IP != ip {
-				return c.Status(403).SendString("Confirmação já realizada por outro dispositivo.")
-			}
-			// Se o IP for o mesmo, permitir a alteração
-			return c.Render("confirm", fiber.Map{
-				"Phone":        phone,
-				"Adults":       guest.Adults,
-				"Children":     guest.Children,
-				"IsUpdate":     true, // Indica que é uma atualização
-			})
-		}
-	
 		// Converter adultos e crianças para inteiros
 		adultsInt, err := strconv.Atoi(adults)
 		if err != nil {
@@ -204,7 +190,35 @@ func main() {
 			return c.Status(400).SendString("Número de crianças inválido")
 		}
 	
-		// Atualizar confirmação no banco de dados
+		// Se já confirmou, verificar o IP
+		if guest.Confirmed {
+			if guest.IP != ip {
+				return c.Status(403).SendString("Confirmação já realizada por outro dispositivo.")
+			}
+			// Se o IP for o mesmo, permitir a alteração e atualizar os dados no banco
+			_, err = collection.UpdateOne(
+				context.TODO(),
+				bson.M{"phone": phone},
+				bson.M{"$set": bson.M{
+					"adults":   adultsInt,
+					"children": childrenInt,
+					"confirmed": true,
+					"ip":       ip,
+				}},
+			)
+			if err != nil {
+				return c.Status(500).SendString("Erro ao atualizar confirmação")
+			}
+	
+			return c.Render("confirm", fiber.Map{
+				"Phone":    phone,
+				"Adults":   adultsInt,
+				"Children": childrenInt,
+				"IsUpdate": true, // Indica que é uma atualização
+			})
+		}
+	
+		// Se for uma nova confirmação, atualizar os dados no banco
 		_, err = collection.UpdateOne(
 			context.TODO(),
 			bson.M{"phone": phone},
@@ -219,7 +233,6 @@ func main() {
 			return c.Status(500).SendString("Erro ao confirmar presença")
 		}
 	
-		// Renderizar a página de confirmação com os totais
 		return c.Render("confirm", fiber.Map{
 			"Phone":    phone,
 			"Adults":   adultsInt,
