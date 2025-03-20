@@ -9,10 +9,10 @@ fi
 # Configuração do banco e coleção
 DATABASE="festa_db"
 COLLECTION="guests"
-CSV_FILE="guests.csv"
+FILE="guests.json"
 
 # Verifica se o arquivo CSV existe
-if [ ! -f "$CSV_FILE" ]; then
+if [ ! -f "$FILE" ]; then
     echo "Erro: Arquivo CSV não encontrado!"
     exit 1
 fi
@@ -22,8 +22,7 @@ docker run --rm -v "$(pwd):/data" mongo:latest mongoimport \
   --uri "$MONGO_URI" \
   --db "$DATABASE" \
   --collection "$COLLECTION" \
-  --type csv \
-  --headerline \
-  --file /data/"$CSV_FILE"
+  --type json \
+  --file /data/"$FILE"
 
 echo "✅ Importação concluída com sucesso!"
